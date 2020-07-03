@@ -265,7 +265,8 @@ class PostgresEngine extends Engine
         // See https://www.postgresql.org/docs/current/static/textsearch-controls.html
         $tsQuery = $builder->callback
             ? call_user_func($builder->callback, $builder, $this->searchConfig($builder->model), $query)
-            : $this->defaultQueryMethod($builder->query, $this->searchConfig($builder->model));
+            : $this->Me
+                Method($builder->query, $this->searchConfig($builder->model));
 
         $query->crossJoin($this->database->raw($tsQuery->sql().' AS "tsquery"'));
         // Add TS bindings to the query
@@ -284,6 +285,10 @@ class PostgresEngine extends Engine
      */
     public function defaultQueryMethod($query, $config)
     {
+        if ($this->config('fuzzy', false)) {
+            $query .= ':*';
+        }
+        
         switch (strtolower($this->config('search_using', 'plain'))) {
             case 'tsquery':
                 return new ToTsQuery($query, $config);
