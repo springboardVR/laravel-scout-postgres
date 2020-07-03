@@ -11,6 +11,7 @@ use Laravel\Scout\Engines\Engine;
 use ScoutEngines\Postgres\TsQuery\PhraseToTsQuery;
 use ScoutEngines\Postgres\TsQuery\PlainToTsQuery;
 use ScoutEngines\Postgres\TsQuery\ToTsQuery;
+use ScoutEngines\Postgres\TsQuery\WebSearchToTsQuery;
 
 class PostgresEngine extends Engine
 {
@@ -265,8 +266,7 @@ class PostgresEngine extends Engine
         // See https://www.postgresql.org/docs/current/static/textsearch-controls.html
         $tsQuery = $builder->callback
             ? call_user_func($builder->callback, $builder, $this->searchConfig($builder->model), $query)
-            : $this->Me
-                Method($builder->query, $this->searchConfig($builder->model));
+            : $this->defaultQueryMethod($builder->query, $this->searchConfig($builder->model));
 
         $query->crossJoin($this->database->raw($tsQuery->sql().' AS "tsquery"'));
         // Add TS bindings to the query
@@ -288,7 +288,7 @@ class PostgresEngine extends Engine
         if ($this->config('fuzzy', false)) {
             $query .= ':*';
         }
-        
+
         switch (strtolower($this->config('search_using', 'plain'))) {
             case 'tsquery':
                 return new ToTsQuery($query, $config);
