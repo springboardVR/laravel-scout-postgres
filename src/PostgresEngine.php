@@ -284,8 +284,11 @@ class PostgresEngine extends Engine
      */
     public function defaultQueryMethod($query, $config)
     {
-        if ($this->config('fuzzy', false)) {
-            $query .= ':*';
+        if ($this->config('fuzzy', false) && strlen($query) > 0) {
+            $queryArray = explode(' ', $query);
+            $query = implode(' | ', array_map(function($string) {
+                return $string . ':*';
+            }, $queryArray));
         }
 
         switch (strtolower($this->config('search_using', 'plain'))) {
