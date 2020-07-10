@@ -287,7 +287,9 @@ class PostgresEngine extends Engine
         if ($this->config('fuzzy', false) && strlen($query) > 0) {
             $queryArray = explode(' ', $query);
             $query = implode(' | ', array_map(function($string) {
-                return $string . ':*';
+                if (strlen($string) > 0) {
+                    return $string . ':*';
+                }
             }, $queryArray));
         }
 
