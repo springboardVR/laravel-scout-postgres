@@ -286,11 +286,13 @@ class PostgresEngine extends Engine
     {
         if ($this->config('fuzzy', false) && strlen($query) > 0) {
             $queryArray = explode(' ', $query);
-            $query = implode(' | ', array_map(function($string) {
+            $queryArray = array_filter(array_map(function($string) {
                 if (strlen($string) > 0) {
                     return $string . ':*';
                 }
+                return null;
             }, $queryArray));
+            $query = implode(' | ', $queryArray);
         }
 
         switch (strtolower($this->config('search_using', 'plain'))) {
